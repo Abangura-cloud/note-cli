@@ -10,13 +10,23 @@ def ensure_db():
 
 def add_note(text):
     ensure_db()
-    # Generate SHA-256 hash of the content
     note_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()
     file_path = os.path.join(DB_DIR, note_hash)
-    
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(text)
     print(f"Note saved with hash: {note_hash}")
+
+def list_notes():
+    ensure_db()
+    files = os.listdir(DB_DIR)
+    if not files:
+        print("No notes found.")
+        return
+    for note_hash in files:
+        file_path = os.path.join(DB_DIR, note_hash)
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+        print(f"{note_hash} -> {content}")
 
 if __name__ == "__main__":
     args = sys.argv[1:]
@@ -30,3 +40,5 @@ if __name__ == "__main__":
             print("Usage: note add <text>")
         else:
             add_note(" ".join(args[1:]))
+    elif command == "list":
+        list_notes()
